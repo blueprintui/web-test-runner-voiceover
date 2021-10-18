@@ -3,10 +3,59 @@ import { exec } from 'child_process';
 import '@jxa/global-type';
 import { Command, Commands } from './commands.js';
 import { Page } from 'playwright';
-// import * as osascript from 'node-osascript';
+import * as osascript from 'node-osascript';
+
+async function processIsRunning(process: string) {
+  return await new Promise<string>((resolve, reject) => {
+    const command = `
+tell application "System Events"
+  name of every process contains ("${process}")
+end tell`;
+    osascript.execute(command, (err: any, result: any, _raw: any) => {
+      err ? reject(err) : resolve(result);
+    });
+  });
+}
+
+function retry(
+  fn: any,
+  maxTries = 10,
+  promise?: Promise<any>,
+  promiseObject: { resolve: any; reject: any } = {
+    resolve: null,
+    reject: null,
+  }
+) {
+  maxTries--;
+
+  promise =
+    promise ||
+    new Promise((resolve, reject) => {
+      promiseObject.resolve = resolve;
+      promiseObject.reject = reject;
+    });
+
+  fn()
+    .then((result: any) => {
+      promiseObject.resolve(result);
+    })
+    .catch(() => {
+      if (maxTries > 0) {
+        retry(fn, maxTries, promise, promiseObject);
+      } else {
+        promiseObject.reject('Max attempts reached');
+      }
+    });
+
+  return promise;
+}
+
+export function processHasStarted(process: string) {
+  return retry(() => processIsRunning(process)).catch(err => console.log(`${process}: ${err}`));
+}
 
 export class VoiceOverBrowser {
-  process: Promise<any>;
+  // process: Promise<any>;
   page: Page;
 
   constructor() {
@@ -14,15 +63,15 @@ export class VoiceOverBrowser {
       process.on(event, () => this.stop());
     }
 
-    this.process = new Promise((resolve, reject) => {
-      exec('/System/Library/CoreServices/VoiceOver.app/Contents/MacOS/VoiceOverStarter', (err, stdout, stderr) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({ stdout, stderr });
-        }
-      });
-    });
+    // this.process = new Promise((resolve, reject) => {
+    //   exec('/System/Library/CoreServices/VoiceOver.app/Contents/MacOS/VoiceOverStarter', (err, stdout, stderr) => {
+    //     if (err) {
+    //       reject(err);
+    //     } else {
+    //       resolve({ stdout, stderr });
+    //     }
+    //   });
+    // });
   }
 
   stop() {
@@ -35,6 +84,23 @@ export class VoiceOverBrowser {
   async start(page: Page) {
     this.page = page;
 
+    console.log('start');
+    const running = await processIsRunning('VoiceOver');
+    console.log('running', running);
+    if (!running) {
+      await new Promise<string>((resolve, reject) => {
+        osascript.execute(`tell application "System Events" to key code 96 using command down`, (err: any, result: any, _raw: any) => {
+          console.log('result', result);
+          console.log('err', err);
+          err ? reject(err) : resolve(result);
+        });
+      });
+
+    }
+
+    // await this.process;
+    await processHasStarted('Playwright');
+    await processHasStarted('VoiceOver');
     await jxaRun(() => {
       Application('System Events').applicationProcesses.byName('Playwright').windows[0].actions.byName('AXRaise');
     });
@@ -116,26 +182,22 @@ export class VoiceOverBrowser {
   }
 
   private async lastPhrase() {
-    return jxaRun<string>(() => {
-      return (Application('VoiceOver').lastPhrase as any).content()
-    }).catch(err => console.log('LAST PHRASE ERROR', err));
+    // return jxaRun<string>(() => {
+    //   return (Application('VoiceOver').lastPhrase as any).content()
+    // }).catch(err => console.log('LAST PHRASE ERROR', err));
 
-//     const value = await new Promise<string>(resolve => {
-//     const command = `
-// set textLine to ""
-// tell application "VoiceOver"
-//   tell last phrase
-//     set textLine to content
-//   end tell
-// end tell
-// return textLine`;
-//       osascript.execute(command, (err: any, result: any, _raw: any) => {
-//         if (err) return console.error(err)
-
-//         resolve(result)
-//       });
-//     });
-
-//     return value;
+    return await new Promise<string>((resolve, reject) => {
+      const command = `
+tell application "VoiceOver"
+  set lastPhrase to content of last phrase 
+	return lastPhrase
+end tell
+      `;
+      osascript.execute(command, (err: any, result: any, _raw: any) => {
+        console.log('lastphrase err', err);
+        console.log('lastphrase result', result);
+        err || !result ? reject(err) : resolve(result);
+      });
+    });
   }
 }

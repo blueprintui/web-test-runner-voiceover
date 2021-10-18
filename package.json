@@ -14,7 +14,7 @@
     "start": "web-dev-server --open demo/ --node-resolve --watch",
     "clean": "del ./dist",
     "test": "web-test-runner",
-    "test:watch": "web-test-runner -watch",
+    "test:guard": "node -e 'if (!process.env.GITHUB_ACTION)process.exit(1)' || web-test-runner",
     "build": "tsc --project ./tsconfig.lib.json && cpy ./package.json dist/ && cpy ./README.md dist/",
     "build:watch": "tsc --watch --project ./tsconfig.lib.json"
   },
