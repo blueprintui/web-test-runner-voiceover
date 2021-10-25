@@ -4,8 +4,9 @@ The Web Test Runner Voiceover provides plugins for [web-test-runner](https://mod
 
 ## Setup
 
-Below you can find a minimal setup. To use `web-test-runner-voiceover` create a standalone test runner separate from your standard test runner config. Tests should be run independent of other tests and only run one test and browser at a time for the most accurate results. Currently Github Action CI support is not available due to permission issues.
-
+Below you can find a minimal setup. To use `web-test-runner-voiceover` create a standalone test runner separate from your standard test runner config.
+Tests should be run independent of other tests and only run one test and browser at a time for the most accurate results.
+Currently Github Action CI support is not available due to permission issues.
 
 ```javascript
 // web-test-runner.voiceover.mjs
@@ -13,9 +14,9 @@ import { playwrightLauncher } from '@web/test-runner-playwright';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
 import { fromRollup } from '@web/dev-server-rollup';
 import alias from '@rollup/plugin-alias';
-import { voiceOverPlugin } from 'web-test-runner-voiceover';
+import { voiceOverPlugin } from 'web-test-runner-voiceover'; 
 
-export default ({
+export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
   concurrency: 1,
   concurrentBrowsers: 1,
   files: ['./src/**/*.spec.ts'],
@@ -29,18 +30,12 @@ export default ({
   plugins: [
     voiceOverPlugin(),
     fromRollup(alias)({
-      entries: [
-        { find: /^web-test-runner-voiceover$/, replacement: `${process.cwd()}/dist` },
-        { find: /^web-test-runner-voiceover\/(.+)\.js$/, replacement: `${process.cwd()}/dist/$1.js` },
-        { find: /^(.*)\.ts$/, replacement: `${process.cwd()}/$1.js` },
-        { find: '.js', replacement: `.ts` },
-      ],
+      entries: [{ find: /^my-cool-library/, replacement: `${process.cwd()}/dist` }],
     }),
     esbuildPlugin({ ts: true, json: true, target: 'auto', sourceMap: true })
   ]
 });
 ```
-
 ## Permissions
 
 To run the tests certain permissions must be enabled.
@@ -49,11 +44,13 @@ To run the tests certain permissions must be enabled.
 2. Enable Terminal app in System Preferences => Security & Privacy => Privacy => Accessibility.
 3. Allow Terminal/VoiceOver permissions when prompted
 
+The plugin will adjust VoiceOver preferences for optimal testing speed.
+
 ## Tests
 
 ```javascript
 import { expect } from '@esm-bundle/chai';
-import { VoiceOverTest, Commands } from 'web-test-runner-voiceover/browser.js';
+import { VoiceOverTest, Commands } from 'web-test-runner-voiceover/browser';
 
 describe('should enable voice over tests with inputs', () => {
   let element: HTMLElement;

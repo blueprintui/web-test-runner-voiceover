@@ -1,7 +1,7 @@
 import { executeServerCommand } from '@web/test-runner-commands';
-import { Command } from './commands.js';
+import { Command } from '../commands.js';
 
-export * from './commands.js';
+export * from '../commands.js';
 
 export class VoiceOverTest {
   private commands: Command[] = [];

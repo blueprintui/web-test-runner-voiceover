@@ -1,4 +1,4 @@
-import { VoiceOverBrowser } from './voiceover.js';
+import { VoiceOverBrowser } from './voiceover/index.js';
 
 export interface PluginCommand {
   command: string;
@@ -15,9 +15,9 @@ export function voiceOverPlugin() {
       if (command === 'voice-over' && session.browser.type === 'playwright') {
         if (voiceOver === null) {
           voiceOver = new VoiceOverBrowser();
+          await voiceOver.boot();
         }
 
-        await new Promise(r => setTimeout(() => r(null), 1000));
         await voiceOver.start(session.browser.getPage(session.id));
         let results: string[] = [];
         

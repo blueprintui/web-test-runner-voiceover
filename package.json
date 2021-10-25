@@ -1,6 +1,6 @@
 {
   "name": "web-test-runner-voiceover",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "./index.js",
   "module": "./index.js",
@@ -13,8 +13,7 @@
     "ci": "npm run clean && npm run build && npm run test",
     "start": "web-dev-server --open demo/ --node-resolve --watch",
     "clean": "del ./dist",
-    "test": "web-test-runner",
-    "test:guard": "node -e 'if (!process.env.GITHUB_ACTION)process.exit(1)' || web-test-runner",
+    "test": "node -e 'if (!process.env.GITHUB_ACTION)process.exit(1)' || web-test-runner",
     "build": "tsc --project ./tsconfig.lib.json && cpy ./package.json dist/ && cpy ./README.md dist/",
     "build:watch": "tsc --watch --project ./tsconfig.lib.json"
   },

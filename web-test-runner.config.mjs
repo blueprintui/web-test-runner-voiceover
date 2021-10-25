@@ -19,10 +19,7 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
     voiceOverPlugin(),
     fromRollup(alias)({
       entries: [
-        { find: /^web-test-runner-voiceover$/, replacement: `${process.cwd()}/dist` },
-        { find: /^web-test-runner-voiceover\/(.+)\.js$/, replacement: `${process.cwd()}/dist/$1.js` },
-        { find: /^(.*)\.ts$/, replacement: `${process.cwd()}/$1.js` },
-        { find: '.js', replacement: `.ts` },
+        { find: /^web-test-runner-voiceover/, replacement: `${process.cwd()}/dist` }
       ],
     }),
     esbuildPlugin({ ts: true, json: true, target: 'auto', sourceMap: true })
