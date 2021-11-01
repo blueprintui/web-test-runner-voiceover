@@ -47,8 +47,7 @@ To run the tests certain permissions must be enabled.
 3. Allow Terminal/VoiceOver permissions if prompted
 4. If Dictation prompt is opened dismiss, click don't ask again.
 
-The plugin will adjust VoiceOver preferences for optimal testing speed. The tests should be
-run in a headless browser. For optimal support for Mac users use the `webkit` option.
+The plugin will adjust VoiceOver preferences for optimal testing speed. The tests should **not** run in a headless browser. For optimal support for Mac users use the `webkit` option.
 
 ## Tests
 
