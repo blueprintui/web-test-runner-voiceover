@@ -1,12 +1,14 @@
 # web-test-runner-voiceover
 
+[![npm version](https://badge.fury.io/js/web-test-runner-voiceover.svg)](https://badge.fury.io/js/web-test-runner-performance) ![CI Build](https://github.com/coryrylan/web-test-runner-voiceover/actions/workflows/build.yml/badge.svg)
+
 The Web Test Runner Voiceover provides plugins for [web-test-runner](https://modern-web.dev/docs/test-runner/overview/) to automate Voiceover Screen reader testing.
+
+![Web Test Runner Voiceover Example](https://github.com/coryrylan/web-test-runner-voiceover/blob/main/assets/web-test-runner-voiceover.png)
 
 ## Setup
 
-Below you can find a minimal setup. To use `web-test-runner-voiceover` create a standalone test runner separate from your standard test runner config.
-Tests should be run independent of other tests and only run one test and browser at a time for the most accurate results.
-Currently Github Action CI support is not available due to permission issues.
+Below you can find a minimal setup. To use `web-test-runner-voiceover` create a standalone test runner separate from your standard test runner config. Tests should be run independent of other tests and only run one test and browser at a time for the most accurate results.
 
 ```javascript
 // web-test-runner.voiceover.mjs
@@ -40,11 +42,13 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
 
 To run the tests certain permissions must be enabled.
 
-1. In the VoiceOver Utility app check "Allow VoiceOver to be controlled with AppleScript"
-2. Enable Terminal app in System Preferences => Security & Privacy => Privacy => Accessibility.
-3. Allow Terminal/VoiceOver permissions when prompted
+1. In `VoiceOver Utility` app check "Allow VoiceOver to be controlled with AppleScript"
+2. Enable Terminal app in `System Preferences` => `Security & Privacy` => `Privacy` => `Accessibility`.
+3. Allow Terminal/VoiceOver permissions if prompted
+4. If Dictation prompt is opened dismiss, click don't ask again.
 
-The plugin will adjust VoiceOver preferences for optimal testing speed.
+The plugin will adjust VoiceOver preferences for optimal testing speed. The tests should be
+run in a headless browser. For optimal support for Mac users use the `webkit` option.
 
 ## Tests
 
@@ -75,4 +79,14 @@ describe('should enable voice over tests with inputs', () => {
     expect(result.values).to.eql(result.expected);
   });
 });
+```
+
+The various commands available can be found [here](https://github.com/coryrylan/web-test-runner-voiceover/blob/main/src/commands.ts).
+Currently Github Action CI support is not available due to permission issues. To run tests locally and skip Github CI during a build a check can be added befor executing the tests.
+
+```json
+// package.json
+"scripts": {
+  "test": "node -e 'if (!process.env.GITHUB_ACTION)process.exit(1)' || web-test-runner",
+},
 ```
