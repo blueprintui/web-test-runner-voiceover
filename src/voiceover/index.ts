@@ -3,14 +3,10 @@ import { exec as ex } from 'child_process';
 import '@jxa/global-type';
 import { Command, Commands } from '../commands.js';
 import { Page } from 'playwright';
-import { promisify } from 'util';
+
 import { updateSettings, testSettings, defaultSettings } from './settings.js';
 import { appendMarker } from './dom.js';
-import { processHasStarted } from './system.js';
-
-const exec = (cmd: string) => {
-  return promisify<any>(ex)(cmd).catch((err: any) => console.log(err));
-}
+import { getAppleScriptVoiceOverPermissions, processHasStarted, startVoiceOverProcess } from './system.js';
 
 export class VoiceOverBrowser {
   page: Page;
@@ -23,7 +19,8 @@ export class VoiceOverBrowser {
 
   async boot() {
     updateSettings(testSettings);
-    await exec('/System/Library/CoreServices/VoiceOver.app/Contents/MacOS/VoiceOverStarter');
+    await getAppleScriptVoiceOverPermissions();
+    await startVoiceOverProcess();
     await this.untilPhrase('web content');
   }
 
