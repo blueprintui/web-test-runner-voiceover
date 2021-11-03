@@ -2,9 +2,13 @@
 
 [![npm version](https://badge.fury.io/js/web-test-runner-voiceover.svg)](https://badge.fury.io/js/web-test-runner-performance) ![CI Build](https://github.com/coryrylan/web-test-runner-voiceover/actions/workflows/build.yml/badge.svg)
 
-The Web Test Runner Voiceover provides plugins for [web-test-runner](https://modern-web.dev/docs/test-runner/overview/) to automate Voiceover Screen reader testing.
+The Web Test Runner Voiceover provides plugins for [@web/test-runner](https://modern-web.dev/docs/test-runner/overview/) to automate Voiceover Screen reader testing.
 
 ![Web Test Runner Voiceover Example](https://github.com/coryrylan/web-test-runner-voiceover/blob/main/assets/web-test-runner-voiceover.png)
+
+### Alternatives
+
+Not using `@web/test-runner`? No worries! There is another great VoiceOver testing tool available called [auto-vo](https://github.com/ckundo/auto-vo). This tool enables similar VoiceOver testing as `web-test-runner-voiceover` but is optimized for content-based sites and works stand alone without requiring using `@web/test-runner`.
 
 ## Setup
 
@@ -40,12 +44,11 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
 ```
 ## Permissions
 
-To run the tests certain permissions must be enabled.
+To run the tests certain permissions must be enabled. The first time running tests you will asked to allow permissions for `Terminal` to run have `Assistive Access` and to allow VoiceOver to be controlled by `AppleScript`.
+Allow both of these permissions. Once allowed you should not be asked again to enable.
 
-1. In `VoiceOver Utility` app check "Allow VoiceOver to be controlled with AppleScript"
-2. Enable Terminal app in `System Preferences` => `Security & Privacy` => `Privacy` => `Accessibility`.
-3. Allow Terminal/VoiceOver permissions if prompted
-4. If Dictation prompt is opened dismiss, click don't ask again.
+If you need to re-enable/disable
+you can find `Assistive Access` under `System Preferences` > `Security & Privacy` > `Accessibility`. Re-enabling `AppleScript` can be found in the `VoiceOver Utilities` app.
 
 The plugin will adjust VoiceOver preferences for optimal testing speed. The tests should **not** run in a headless browser. For optimal support for Mac users use the `webkit` option.
 
