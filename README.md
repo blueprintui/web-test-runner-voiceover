@@ -1,6 +1,6 @@
 # web-test-runner-voiceover
 
-[![npm version](https://badge.fury.io/js/web-test-runner-voiceover.svg)](https://badge.fury.io/js/web-test-runner-performance) ![CI Build](https://github.com/coryrylan/web-test-runner-voiceover/actions/workflows/build.yml/badge.svg)
+[![npm version](https://badge.fury.io/js/web-test-runner-voiceover.svg)](https://badge.fury.io/js/web-test-runner-voiceover) ![CI Build](https://github.com/coryrylan/web-test-runner-voiceover/actions/workflows/build.yml/badge.svg)
 
 The Web Test Runner Voiceover provides plugins for [@web/test-runner](https://modern-web.dev/docs/test-runner/overview/) to automate Voiceover Screen reader testing.
 
