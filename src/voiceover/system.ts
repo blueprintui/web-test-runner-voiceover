@@ -25,6 +25,8 @@ export async function startVoiceOverProcess() {
 export async function getAppleScriptVoiceOverPermissions() {
   return await new Promise<string>((resolve, reject) => {
     const command = `
+tell application "VoiceOver Utility" to quit
+delay 1
 tell application "VoiceOver Utility" to activate
 
 tell application "System Events" to tell application process "VoiceOver Utility"
