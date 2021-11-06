@@ -57,7 +57,7 @@ export class VoiceOverBrowser {
       ({ keyCode, modifiers }) => Application('System Events').keyCode(keyCode, { using: modifiers }),
       command
     );
-    return this.page.waitForTimeout(command.name === 'Space' ? 100 : 25);
+    return this.page.waitForTimeout(command.name?.includes('Cursor') ? 10 : 150);
   }
 
   stop() {
