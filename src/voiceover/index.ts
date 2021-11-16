@@ -1,98 +1,91 @@
 import { run as jxaRun } from '@jxa/run';
-import { exec as ex } from 'child_process';
-import '@jxa/global-type';
-import { Command, Commands } from '../commands.js';
 import { Page } from 'playwright';
+import '@jxa/global-type';
 
+import { Command, Commands } from '../commands.js';
 import { updateSettings, testSettings, defaultSettings } from './settings.js';
 import { appendMarker } from './dom.js';
-import { getAppleScriptVoiceOverPermissions, processHasStarted, startVoiceOverProcess } from './system.js';
+import { getAppleScriptVoiceOverPermissions, processHasStarted, startVoiceOverProcess, stopProcess } from './system.js';
+
+for (const event of ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException', 'SIGTERM']) {
+  process.on(event, async () => {
+    await updateSettings(defaultSettings);
+    stopProcess('VoiceOver');
+  });
+}
 
 export class VoiceOverBrowser {
-  page: Page;
-
-  constructor() {
-    for (const event of ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException', 'SIGTERM']) {
-      process.on(event, () => this.stop());
-    }
-  }
-
   async boot() {
-    updateSettings(testSettings);
+    stopProcess('VoiceOver');
+    await updateSettings(testSettings);
     await getAppleScriptVoiceOverPermissions();
     await startVoiceOverProcess();
-    await this.untilPhrase('web content');
+    await untilPhrase('web content');
   }
 
   async start(page: Page) {
-    this.page = page;
     await appendMarker(page);
     await processHasStarted('Playwright');
     await processHasStarted('VoiceOver');
-    await this.focusBrowser();
-    await this.run(Commands.nextHeading);
+    await focusBrowser();
+    await run(Commands.nextHeading);
   }
 
-  async runAll(commands: Command[]) {
-    await this.page.waitForTimeout(0);
-    await this.run(Commands.nextHeading);
+  async stop() {
+    return stopProcess('VoiceOver');
+  }
 
+  async runAll(config: { commands: Command[], expected: string[]}) {
     let i = 0;
     let results = [];
-    while (i < commands.length) {
-      await this.run(commands[i]);
-      let lastPhrase = await this.lastPhrase();
-      if (lastPhrase) {
-        lastPhrase = lastPhrase.toLowerCase().trim();
-        results.push(lastPhrase);
-        console.log(lastPhrase);
-      }
+    while (i < config.commands.length) {
+      await run(config.commands[i]);
+      const result = await untilPhrase(config.expected[i]);
+      console.log(result);
+      results.push(result);
       i++;
     }
     return results;
   }
+}
 
-  async run(command: Command) {
-    await jxaRun(
-      ({ keyCode, modifiers }) => Application('System Events').keyCode(keyCode, { using: modifiers }),
-      command
-    );
-    return this.page.waitForTimeout(command.name?.includes('Cursor') ? 10 : 150);
-  }
+async function focusBrowser() {
+  return jxaRun(() => {
+    Application('System Events').applicationProcesses.byName('Playwright').windows[0].actions.byName('AXRaise');
+  });
+}
 
-  stop() {
-    updateSettings(defaultSettings);
-    ex('killall VoiceOver');
-  }
+async function run(command: Command) {
+  await jxaRun(
+    ({ keyCode, modifiers }) => Application('System Events').keyCode(keyCode, { using: modifiers }),
+    command
+  );
+}
 
-  private async focusBrowser() {
-    return jxaRun(() => {
-      Application('System Events').applicationProcesses.byName('Playwright').windows[0].actions.byName('AXRaise');
-    });
-  }
+async function lastPhrase() {
+  return jxaRun<string>(() => (Application('VoiceOver').lastPhrase as any).content()).catch(err => console.log(err));
+}
 
-  private async lastPhrase() {
-    return jxaRun<string>(() => (Application('VoiceOver').lastPhrase as any).content()).catch(err => console.log(err));
-  }
-
-  async untilPhrase(includes: string) {
-    await new Promise(r => {
-      let count = 0;
-      const i = setInterval(async () => {
-        const phrase = await this.lastPhrase();
-
-        if (phrase && phrase.toLocaleLowerCase().includes(includes.toLocaleLowerCase())) {
-          r('');
-          clearInterval(i);
-        }
-        
-        if (count > 10) {
-          r('error');
-          clearInterval(i);
-        }
-
+async function untilPhrase(value: string): Promise<string> {
+  return new Promise(async (resolve) => {
+    let count = 0;
+    let phrases: string[] = [];
+    while (count < 50) {
+      const phrase = await lastPhrase();
+      const result = value.trim().toLocaleLowerCase();
+      if (phrase && phrase.trim().toLocaleLowerCase().includes(result)) {
+        resolve(result);
+        break;
+      } else {
         count++;
-      }, 1000);
-    });
-  }
+        phrases.push(phrase as string);
+        console.log(phrase);
+        await new Promise(r => setTimeout(() => r(null), 10));
+      }
+    }
+
+    if (count >= 1000) {
+      resolve(`${[...new Set(phrases)].join('. ')}`);
+    }
+  })
 }

@@ -1,5 +1,4 @@
-import { promisify } from 'util';
-import { exec } from 'child_process';
+import { exec } from './utils.js';
 
 interface VOSettings {
   doNotShowSplashScreen?: string;
@@ -28,12 +27,16 @@ export const defaultSettings: VOSettings = {
   loginGreeting: 'Welcome to macOS. VoiceOver is on.'
 };
 
-export function updateSettings(settings: VOSettings) {
+export async function getSettingDefault(settingDefaults: string) {
+  return await exec(`defaults read ${settingDefaults}`);
+}
+
+export async function updateSettings(settings: VOSettings) {
   // await exec(`defaults write com.apple.VoiceOver4/default SCREnableAppleScript ${settings.enableAppleScript}`);
-  exec(`defaults write com.apple.VoiceOverTraining doNotShowSplashScreen ${settings.doNotShowSplashScreen}`);
-  exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechComponentSettings_SCRDisableSpeech ${settings.disableSpeech}`);
-  exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSoundComponentSettings_SCRDisableSound ${settings.disableSound}`);
-  exec(`defaults write com.apple.VoiceOver4/default SCRDisplayTextEnabled ${settings.displayTextEnabled}`);
-  exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechLanguages_default_SCRSpeechComponentSettings_SCRRateAsPercent ${settings.rateAsPercent}`);
-  exec(`defaults write com.apple.VoiceOver4/default loginGreeting "${settings.loginGreeting}"`);
+  await exec(`defaults write com.apple.VoiceOverTraining doNotShowSplashScreen ${settings.doNotShowSplashScreen}`);
+  await exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechComponentSettings_SCRDisableSpeech ${settings.disableSpeech}`);
+  await exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSoundComponentSettings_SCRDisableSound ${settings.disableSound}`);
+  await exec(`defaults write com.apple.VoiceOver4/default SCRDisplayTextEnabled ${settings.displayTextEnabled}`);
+  await exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechLanguages_default_SCRSpeechComponentSettings_SCRRateAsPercent ${settings.rateAsPercent}`);
+  await exec(`defaults write com.apple.VoiceOver4/default loginGreeting "${settings.loginGreeting}"`);
 }

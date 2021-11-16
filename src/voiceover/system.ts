@@ -1,9 +1,17 @@
 import * as osascript from 'node-osascript';
-import { exec as ex } from 'child_process';
-import { promisify } from 'util';
+import { getSettingDefault } from './settings.js';
+import { exec, retry } from './utils.js';
 
-const exec = (cmd: string) => {
-  return promisify<any>(ex)(cmd).catch((err: any) => console.log(err));
+export async function stopProcess(process: string) {
+  return await new Promise<string>((resolve, reject) => {
+    const command = `
+tell application "${process}"
+  quit
+end tell`;
+    osascript.execute(command, (err: any, result: any, _raw: any) => {
+      err ? reject(err) : resolve(result);
+    });
+  });
 }
 
 async function processIsRunning(process: string) {
@@ -22,9 +30,22 @@ export async function startVoiceOverProcess() {
   return exec('/System/Library/CoreServices/VoiceOver.app/Contents/MacOS/VoiceOverStarter');
 }
 
+async function supportsAppleScript(): Promise<boolean> {
+  return new Promise(async (resolve) => {
+    try {
+      const value = await getSettingDefault('com.apple.VoiceOver4/default SCREnableAppleScript');
+      resolve(value.stdout.trim() === '1');
+    } catch {
+      resolve(false);
+    }
+  })
+}
+
 export async function getAppleScriptVoiceOverPermissions() {
-  return await new Promise<string>((resolve, reject) => {
-    const command = `
+  return await new Promise<string>(async (resolve, reject) => {
+    const supports = await supportsAppleScript();
+    if (!supports) {
+      const command = `
 tell application "VoiceOver Utility" to quit
 delay 1
 tell application "VoiceOver Utility" to activate
@@ -42,45 +63,16 @@ tell application "System Events" to tell application process "VoiceOver Utility"
 end tell
 
 tell application "VoiceOver Utility" to quit`;
-    osascript.execute(command, (err: any, result: any, _raw: any) => {
-      err ? reject(err) : resolve(result);
-    });
+      osascript.execute(command, (err: any, result: any, _raw: any) => {
+        err ? reject(err) : resolve(result);
+      });
+    } else {
+      resolve('1');
+    }
   });
 }
 
-export function processHasStarted(process: string) {
+export async function processHasStarted(process: string) {
   return retry(() => processIsRunning(process)).catch(err => console.log(`${process}: ${err}`));
 }
 
-function retry(
-  fn: any,
-  maxTries = 10,
-  promise?: Promise<any>,
-  promiseObject: { resolve: any; reject: any } = {
-    resolve: null,
-    reject: null,
-  }
-) {
-  maxTries--;
-
-  promise =
-    promise ||
-    new Promise((resolve, reject) => {
-      promiseObject.resolve = resolve;
-      promiseObject.reject = reject;
-    });
-
-  fn()
-    .then((result: any) => {
-      promiseObject.resolve(result);
-    })
-    .catch(() => {
-      if (maxTries > 0) {
-        retry(fn, maxTries, promise, promiseObject);
-      } else {
-        promiseObject.reject('Max attempts reached');
-      }
-    });
-
-  return promise;
-}

@@ -22,9 +22,10 @@ export function voiceOverPlugin() {
         let results: string[] = [];
         
         try {
-          results = await voiceOver.runAll(payload.commands);
+          results = await voiceOver.runAll(payload);
         } catch (err) {
           console.log(err);
+          await voiceOver.stop();
           return err;
         } finally {
           return results;

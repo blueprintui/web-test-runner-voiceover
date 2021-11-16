@@ -9,7 +9,7 @@ export class VoiceOverTest {
 
   async run(): Promise<{ values: string[], expected: string[] }> {
     const expected: string[] = [...this.expected];
-    const values: string[] = await executeServerCommand('voice-over', { commands: this.commands });
+    const values: string[] = await executeServerCommand('voice-over', { commands: this.commands, expected: this.expected });
     this.commands = [];
     this.expected = [];
     return { values, expected };

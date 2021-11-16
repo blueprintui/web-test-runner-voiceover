@@ -42,6 +42,7 @@
     "@web/test-runner": "^0.13.18",
     "@web/test-runner-commands": "^0.5.13",
     "@web/test-runner-playwright": "^0.8.8",
-    "node-osascript": "^2.1.0"
+    "node-osascript": "^2.1.0",
+    "tslib": "^2.3.1"
   }
 }
