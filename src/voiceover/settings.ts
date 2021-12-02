@@ -1,6 +1,7 @@
 import { exec } from './utils.js';
 
 interface VOSettings {
+  voiceOverCursorEnabled?: string,
   doNotShowSplashScreen?: string;
   disableSpeech?: string;
   disableSound?: string;
@@ -10,15 +11,17 @@ interface VOSettings {
 }
 
 export const testSettings: VOSettings = {
+  voiceOverCursorEnabled: '1',
   doNotShowSplashScreen: '1',
   disableSpeech: '1',
   disableSound: '1',
   displayTextEnabled: '0',
   rateAsPercent: '100',
-  loginGreeting: 'VoiceOver is on'
+  loginGreeting: ''
 };
 
 export const defaultSettings: VOSettings = {
+  voiceOverCursorEnabled: '1',
   doNotShowSplashScreen: '1',
   disableSpeech: '0',
   disableSound: '0',
@@ -31,12 +34,17 @@ export async function getSettingDefault(settingDefaults: string) {
   return await exec(`defaults read ${settingDefaults}`);
 }
 
-export async function updateSettings(settings: VOSettings) {
-  // await exec(`defaults write com.apple.VoiceOver4/default SCREnableAppleScript ${settings.enableAppleScript}`);
-  await exec(`defaults write com.apple.VoiceOverTraining doNotShowSplashScreen ${settings.doNotShowSplashScreen}`);
-  await exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechComponentSettings_SCRDisableSpeech ${settings.disableSpeech}`);
-  await exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSoundComponentSettings_SCRDisableSound ${settings.disableSound}`);
-  await exec(`defaults write com.apple.VoiceOver4/default SCRDisplayTextEnabled ${settings.displayTextEnabled}`);
-  await exec(`defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechLanguages_default_SCRSpeechComponentSettings_SCRRateAsPercent ${settings.rateAsPercent}`);
-  await exec(`defaults write com.apple.VoiceOver4/default loginGreeting "${settings.loginGreeting}"`);
+export function updateSettings(settings: VOSettings, async = true) {
+  const commands = [
+    // await exec(`defaults write com.apple.VoiceOver4/default SCREnableAppleScript ${settings.enableAppleScript}`);
+    `defaults write com.apple.VoiceOverTraining doNotShowSplashScreen ${settings.doNotShowSplashScreen}`,
+    `defaults write com.apple.VoiceOver4/default SCRVoiceOverCursorEnabled ${settings.voiceOverCursorEnabled}`,
+    `defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechComponentSettings_SCRDisableSpeech ${settings.disableSpeech}`,
+    `defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSoundComponentSettings_SCRDisableSound ${settings.disableSound}`,
+    `defaults write com.apple.VoiceOver4/default SCRDisplayTextEnabled ${settings.displayTextEnabled}`,
+    `defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechLanguages_default_SCRSpeechComponentSettings_SCRRateAsPercent ${settings.rateAsPercent}`,
+    `defaults write com.apple.VoiceOver4/default loginGreeting "${settings.loginGreeting}"`,
+  ];
+
+  return async ? Promise.all(commands.map(c => exec(c))) : commands.forEach(c => exec(c, false));
 }

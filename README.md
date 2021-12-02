@@ -42,6 +42,7 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
   ]
 });
 ```
+
 ## Permissions
 
 To run the tests certain permissions must be enabled. The first time running tests you will asked to allow permissions for `Terminal` to run have `Assistive Access` and to allow VoiceOver to be controlled by `AppleScript`.

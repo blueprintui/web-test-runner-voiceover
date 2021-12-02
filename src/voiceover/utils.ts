@@ -1,8 +1,8 @@
 import { promisify } from 'util';
 import { exec as ex } from 'child_process';
 
-export const exec = (cmd: string) => {
-  return promisify<any>(ex)(cmd).catch((err: any) => console.log(err));
+export const exec = (cmd: string, async = true) => {
+  return async ? promisify<any>(ex)(cmd).catch((err: any) => console.log('ERROR: ', err)) : ex(cmd);
 }
 
 export function retry(

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.7
+- update `@playwright/test` for MacOS Monterey support
+- ensure close and reset of VO settings on test completion
+
 ## 0.0.6
 - retry/await on phrases
 - improved restart/permissions boot

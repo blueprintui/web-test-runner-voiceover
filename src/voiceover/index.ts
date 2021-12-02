@@ -8,8 +8,8 @@ import { appendMarker } from './dom.js';
 import { getAppleScriptVoiceOverPermissions, processHasStarted, startVoiceOverProcess, stopProcess } from './system.js';
 
 for (const event of ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException', 'SIGTERM']) {
-  process.on(event, async () => {
-    await updateSettings(defaultSettings);
+  process.on(event, () => {
+    updateSettings(defaultSettings, false);
     stopProcess('VoiceOver');
   });
 }
@@ -79,7 +79,9 @@ async function untilPhrase(value: string): Promise<string> {
       } else {
         count++;
         phrases.push(phrase as string);
-        console.log(phrase);
+        if (!(phrase as string)?.includes('. Speech off.')) {
+          console.log(phrase);
+        }
         await new Promise(r => setTimeout(() => r(null), 10));
       }
     }
