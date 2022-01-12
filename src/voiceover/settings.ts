@@ -30,13 +30,13 @@ export const defaultSettings: VOSettings = {
   loginGreeting: 'Welcome to macOS. VoiceOver is on.'
 };
 
-export async function getSettingDefault(settingDefaults: string) {
-  return await exec(`defaults read ${settingDefaults}`);
+export async function getSettingDefault(settingDefaults: string, async = true) {
+  return await exec(`defaults read ${settingDefaults}`, async);
 }
 
 export function updateSettings(settings: VOSettings, async = true) {
   const commands = [
-    // await exec(`defaults write com.apple.VoiceOver4/default SCREnableAppleScript ${settings.enableAppleScript}`);
+    // `defaults write com.apple.VoiceOver4/default SCREnableAppleScript -bool YES`,
     `defaults write com.apple.VoiceOverTraining doNotShowSplashScreen ${settings.doNotShowSplashScreen}`,
     `defaults write com.apple.VoiceOver4/default SCRVoiceOverCursorEnabled ${settings.voiceOverCursorEnabled}`,
     `defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechComponentSettings_SCRDisableSpeech ${settings.disableSpeech}`,

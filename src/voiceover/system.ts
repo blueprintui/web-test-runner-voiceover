@@ -33,7 +33,7 @@ export async function startVoiceOverProcess() {
 async function supportsAppleScript(): Promise<boolean> {
   return new Promise(async (resolve) => {
     try {
-      const value = await getSettingDefault('com.apple.VoiceOver4/default SCREnableAppleScript');
+      const value = await getSettingDefault('com.apple.VoiceOver4/default SCREnableAppleScript', false);
       resolve(value.stdout.trim() === '1');
     } catch {
       resolve(false);
@@ -66,6 +66,7 @@ tell application "VoiceOver Utility" to quit`;
       osascript.execute(command, (err: any, result: any, _raw: any) => {
         err ? reject(err) : resolve(result);
       });
+
     } else {
       resolve('1');
     }
