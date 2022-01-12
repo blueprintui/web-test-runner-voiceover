@@ -44,7 +44,7 @@ async function supportsAppleScript(): Promise<boolean> {
 export async function getAppleScriptVoiceOverPermissions() {
   return await new Promise<string>(async (resolve, reject) => {
     const supports = await supportsAppleScript();
-    if (!supports) {
+    if (!process.env.GITHUB_ACTION && !supports) {
       const command = `
 tell application "VoiceOver Utility" to quit
 delay 1
