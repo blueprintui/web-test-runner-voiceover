@@ -36,7 +36,7 @@ export async function getSettingDefault(settingDefaults: string, async = true) {
 
 export function updateSettings(settings: VOSettings, async = true) {
   const commands = [
-    // `defaults write com.apple.VoiceOver4/default SCREnableAppleScript -bool YES`,
+    `defaults write com.apple.VoiceOver4/default SCREnableAppleScript -bool true`,
     `defaults write com.apple.VoiceOverTraining doNotShowSplashScreen ${settings.doNotShowSplashScreen}`,
     `defaults write com.apple.VoiceOver4/default SCRVoiceOverCursorEnabled ${settings.voiceOverCursorEnabled}`,
     `defaults write com.apple.VoiceOver4/default SCRCategories_SCRCategorySystemWide_SCRSpeechComponentSettings_SCRDisableSpeech ${settings.disableSpeech}`,

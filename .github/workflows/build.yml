@@ -1,8 +1,6 @@
 name: Build
-on:
-  push:
-    branches:
-      - main
+
+on: [push, pull_request]
 
 jobs:
   build:
@@ -21,4 +19,4 @@ jobs:
       - name: npm ci and npm run ci
         run: |
           npm ci
-          npm run ci
+          sudo npm run ci
